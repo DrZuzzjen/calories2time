@@ -1,6 +1,36 @@
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
+const mongoose = require('mongoose');
+
+mongoose.connect(process.env.DB_CONNECTION, {useNewUrlParser: true, useUnifiedTopology: true});
+
+const FruitSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "needs a name"]
+  },
+  time: {
+    type: Number,
+    required: [true, "number needed"]
+  }
+});
+
+const UserSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: [true, "username needed"]
+  },
+  password: {
+    type: String,
+    required: [true, "password needed"]
+  },
+  email: {
+    type: String,
+    required: [true, "email needed"]
+
+  },
+});
 
 const app = express();
 
