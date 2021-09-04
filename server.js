@@ -3,18 +3,15 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require('mongoose');
 
-// Get models
-const Food = require('./models/food');
+// Import models
+const {Food} = require('./models/food');
 const User = require('./models/user');
 
 mongoose.connect(process.env.DB_CONNECTION, {useNewUrlParser: true, useUnifiedTopology: true});
-console.log(process.env.DB_CONNECTION);
-
-
 
 // Testing save
  const food = new Food({
- name: "Almonds",
+   name: "Almonds",
    time: 10
  }).save().then( () => console.log("Food saved"));
 
