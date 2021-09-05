@@ -62,7 +62,9 @@ const FoodEntry = new GraphQLObjectType({
 const UserEntry = new GraphQLObjectType({
   name: "User",
   fields: () => ({
-    name: {type: GraphQLString}
+    name: {type: GraphQLString},
+    password: {type: GraphQLString},
+    id: {type: GraphQLInt}
   })
 });
 
@@ -91,11 +93,31 @@ const rootQueryType = new GraphQLObjectType({
   })
 });
 
+// Build mutation query
+const mutationType = new GraphQLObjectType({
+  name: "Mutation",
+  fields: () => ({
+    addUser: {
+      name: "Add user",
+      type: GraphQLList(UserEntry),
+      args: {name: {type: GraphQLString}, password: {type: GraphQLString}},
+      resolve: (parent, args) => {
+        user = {};
+        user.name = args.name;
+        user.password = args.password;
+        user.id = users.length + 1;
+        users.push(user);
+        console.log(users);
+        return users;
+      }
+    }
+  })
+});
 
 // Construct a schema, using GraphQL schema language
 var schema = new GraphQLSchema({
   query: rootQueryType,
-  // mutation: mutationType
+  mutation: mutationType
 });
 
 //Apply graphql middleware
