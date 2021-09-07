@@ -12,10 +12,10 @@ const User = require('./models/user');
 mongoose.connect(process.env.DB_CONNECTION, {useNewUrlParser: true, useUnifiedTopology: true});
 
 // Testing save
- const food = new Food({
-   name: "Almonds",
-   time: 10
- }).save().then( () => console.log("Food saved"));
+// const food = new Food({
+//   name: "Almonds",
+//   time: 10
+// }).save().then( () => console.log("Food saved"));
 
 const app = express();
 
@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 });
 
 
-// Add graphql stuff
+// Add GraphQL stuff
 
 // Vars in place of DB to make it easier
 const foods = [
@@ -75,11 +75,11 @@ const rootQueryType = new GraphQLObjectType({
   fields: () => ({
     users: {
       type: GraphQLList(UserEntry),
-      resolve: () => {return users;}
+      resolve: () => {console.log(Food.find({}));}
     },
     foods: {
       type: GraphQLList(FoodEntry),
-      resolve: () => {return foods;}
+      resolve: () => {return foodsquery().then(result => { return result;});}
     },
     user: {
       type: UserEntry,
@@ -149,3 +149,7 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+
+// const foodsquery = async() => {return await Food.find().exec()};
+const foodsquery = async() => {return await Food.find()};
