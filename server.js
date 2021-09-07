@@ -12,10 +12,11 @@ const User = require('./models/user');
 mongoose.connect(process.env.DB_CONNECTION, {useNewUrlParser: true, useUnifiedTopology: true});
 
 // Testing save
-// const food = new Food({
-//   name: "Almonds",
-//   time: 10
-// }).save().then( () => console.log("Food saved"));
+// const food = new User({
+//   username: "François",
+//   password: "test123",
+//   email: "as@asb.com"
+// }).save().then( () => console.log("User saved"));
 
 const app = express();
 
@@ -63,7 +64,7 @@ const FoodEntry = new GraphQLObjectType({
 const UserEntry = new GraphQLObjectType({
   name: "User",
   fields: () => ({
-    name: {type: GraphQLString},
+    username: {type: GraphQLString},
     password: {type: GraphQLString},
     id: {type: GraphQLInt}
   })
@@ -75,11 +76,15 @@ const rootQueryType = new GraphQLObjectType({
   fields: () => ({
     users: {
       type: GraphQLList(UserEntry),
-      resolve: () => {console.log(Food.find({}));}
-    },
+      resolve: () => {
+        return User.find();
+    }
+  },
     foods: {
       type: GraphQLList(FoodEntry),
-      resolve: () => {return foodsquery().then(result => { return result;});}
+      resolve: () => {
+        return Food.find();
+      }
     },
     user: {
       type: UserEntry,
@@ -151,5 +156,5 @@ app.listen(PORT, () => {
 });
 
 
-// const foodsquery = async() => {return await Food.find().exec()};
 const foodsquery = async() => {return await Food.find()};
+const usersquery = async() => {return await User.find()};
