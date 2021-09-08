@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require('mongoose');
-const {graphql, GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLNonNull} = require('graphql');
+const {graphql, GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLID} = require('graphql');
 const {graphqlHTTP} = require('express-graphql');
 
 // Import models
@@ -57,7 +57,7 @@ const FoodEntry = new GraphQLObjectType({
   fields: () => ({
     name: {type: GraphQLString},
     time: {type: GraphQLInt},
-    id: {type: GraphQLInt}
+    id: {type: GraphQLID}
   })
 });
 
@@ -66,7 +66,7 @@ const UserEntry = new GraphQLObjectType({
   fields: () => ({
     username: {type: GraphQLString},
     password: {type: GraphQLString},
-    id: {type: GraphQLInt}
+    id: {type: GraphQLID}
   })
 });
 
@@ -125,17 +125,19 @@ const mutationType = new GraphQLObjectType({
     args: {name: {type: GraphQLNonNull(GraphQLString)}, time: {type: GraphQLNonNull(GraphQLInt)}},
     resolve: (parent, args) => {
       // Build food object from args received
-      const food = {};
-      food.name = args.name;
-      food.time = args.time;
-      food.id = foods.length + 1;
+      const foodToAdd = new Food({
+        name : args.name,
+        time : args.time,
+      });
+      
+      // Add to DB
+      foodToAdd.save().then( () => {console.log("Food saved");});
 
-      // Add to list of foods
-      foods.push(food);
-      return foods;
-    }
-  }})
-});
+      // Return all foods in DB
+      return (Food.find());
+      }
+        }})
+      });
 
 // Construct a schema, using GraphQL schema language
 var schema = new GraphQLSchema({
