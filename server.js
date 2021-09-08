@@ -106,19 +106,49 @@ const mutationType = new GraphQLObjectType({
     addUser: {
       name: "Add user",
       type: GraphQLList(UserEntry),
-      args: {name: {type: GraphQLNonNull(GraphQLString)}, password: {type: GraphQLNonNull(GraphQLString)}},
-      resolve: (parent, args) => {
+      args: {username: {type: GraphQLNonNull(GraphQLString)}, password: {type: GraphQLNonNull(GraphQLString)}, 
+            email: {type: GraphQLNonNull(GraphQLString)}},
+      resolve: async (parent, args) => {
         // Build user object from args received
-        const user = {};
-        user.name = args.name;
-        user.password = args.password;
-        user.id = users.length + 1;
-
-        // Add to list of users
-        users.push(user);
-        return users;
-      }
+        const userToAdd = new User({
+          username : args.username,
+          password : args.password,
+          email: args.email
+        });
+        
+        // Add to DB
+        await userToAdd.save().then( () => {console.log("User saved");});
+  
+        // Return all foods in DB
+        return (User.find());
+        }
+      },
+      removeUser: {
+        name: "Remove user",
+        type: GraphQLList(UserEntry),
+        args: {username: {type: GraphQLNonNull(GraphQLString)}},
+        resolve: async (parent, args) => {
+          // Delete user from database
+          await User.deleteOne({username: args.username});
+    
+          // Return all users in DB
+          return (User.find());
+          }
+        },
+        updateUser: {
+          name: "Update user",
+          type: GraphQLList(UserEntry),
+          args: {username: {type: GraphQLNonNull(GraphQLString)}, newUsername: {type: GraphQLNonNull(GraphQLString)}},
+          resolve: async (parent, args) => {
+            // Update user from database
+            // Problem we are going to have, different caps, convert everything to Titlecase or lowercase?
+            await User.updateOne({username: args.username}, {username: args.newUsername} );
+      
+            // Return all users in DB
+            return (User.find());
+            }
     },
+        
   addFood: {
     name: "Add food",
     type: GraphQLList(FoodEntry),
@@ -154,7 +184,8 @@ const mutationType = new GraphQLObjectType({
         type: GraphQLList(FoodEntry),
         args: {name: {type: GraphQLNonNull(GraphQLString)}, time: {type: GraphQLNonNull(GraphQLInt)}},
         resolve: async (parent, args) => {
-          // Delete food from database
+          // Update food from database
+          // Problem we are going to have, different caps, convert everything to Titlecase or lowercase?
           await Food.updateOne({name: args.name}, {time: args.time} );
     
           // Return all foods in DB
@@ -182,6 +213,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-
-const foodsquery = async() => {return await Food.find()};
-const usersquery = async() => {return await User.find()};
