@@ -123,7 +123,7 @@ const mutationType = new GraphQLObjectType({
     name: "Add food",
     type: GraphQLList(FoodEntry),
     args: {name: {type: GraphQLNonNull(GraphQLString)}, time: {type: GraphQLNonNull(GraphQLInt)}},
-    resolve: (parent, args) => {
+    resolve: async (parent, args) => {
       // Build food object from args received
       const foodToAdd = new Food({
         name : args.name,
@@ -131,12 +131,25 @@ const mutationType = new GraphQLObjectType({
       });
       
       // Add to DB
-      foodToAdd.save().then( () => {console.log("Food saved");});
+      await foodToAdd.save().then( () => {console.log("Food saved");});
 
       // Return all foods in DB
       return (Food.find());
       }
-        }})
+    },
+    removeFood: {
+      name: "Remove food",
+      type: GraphQLList(FoodEntry),
+      args: {name: {type: GraphQLNonNull(GraphQLString)}},
+      resolve: async (parent, args) => {
+        // Delete food from database
+        await Food.deleteOne({name: args.name});
+  
+        // Return all foods in DB
+        return (Food.find());
+        }
+      }
+      })
       });
 
 // Construct a schema, using GraphQL schema language
