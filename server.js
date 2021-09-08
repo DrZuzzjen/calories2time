@@ -148,7 +148,19 @@ const mutationType = new GraphQLObjectType({
         // Return all foods in DB
         return (Food.find());
         }
-      }
+      },
+      updateFood: {
+        name: "Update food",
+        type: GraphQLList(FoodEntry),
+        args: {name: {type: GraphQLNonNull(GraphQLString)}, time: {type: GraphQLNonNull(GraphQLInt)}},
+        resolve: async (parent, args) => {
+          // Delete food from database
+          await Food.updateOne({name: args.name}, {time: args.time} );
+    
+          // Return all foods in DB
+          return (Food.find());
+          }
+        }
       })
       });
 
