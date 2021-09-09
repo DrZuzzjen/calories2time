@@ -185,8 +185,8 @@ const FoodEntry = new GraphQLObjectType({
               food: {type: GraphQLNonNull(GraphQLString)}
           },
           resolve: async (parent, args) => {
-            const foodToAdd = await Food.findOne({name: "Almonds"});
-            const user = await User.findOne({ username: "Test" });
+            const foodToAdd = await Food.findOne({name: args.food});
+            const user = await User.findOne({ username: args.username });
             //Spread so we don't loose previous foods declared
             user.foods =  [...user.foods, foodToAdd];
             await user.save();
