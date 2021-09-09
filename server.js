@@ -4,12 +4,20 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const { graphqlHTTP } = require("express-graphql");
 
-
 // Import models
 const { Food } = require("./models/food");
 const User = require("./models/user");
 
-// Import schema 
+// Test adding food to user
+//user = new User({
+//  username: "Test",
+//  email: "ea@as.com",
+//  password: "test",
+//  foods: {name: "beef", time: 10}
+//});
+//user.save().then(console.log("User saved"));
+
+// Import schema
 const schema = require("./schema/schema");
 
 mongoose.connect(process.env.DB_CONNECTION, {
@@ -36,7 +44,6 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to Colories2Time." });
 });
 
-
 //Apply graphql middleware
 app.use(
   "/graphql",
@@ -51,3 +58,15 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+async function addFoodToUser() {
+  const foodToAdd = await Food.findOne({name: "Almonds"});
+  let userTest = await User.findOne({ username: "Test" });
+  console.log(`User test: ${userTest} and food gotten ${foodToAdd}`);
+  userTest.foods =  [...userTest.foods, foodToAdd];
+  await userTest.save();
+
+  // await userTest.save();
+  console.log(userTest);
+}
+addFoodToUser();

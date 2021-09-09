@@ -177,6 +177,23 @@ const FoodEntry = new GraphQLObjectType({
           return Food.find();
         },
       },
+      addFoodToUser: {
+          name: "Add food to user",
+          type: UserEntry,
+          args: {
+              username: {type: GraphQLNonNull(GraphQLString)},
+              food: {type: GraphQLNonNull(GraphQLString)}
+          },
+          resolve: async (parent, args) => {
+            const foodToAdd = await Food.findOne({name: "Almonds"});
+            let userTest = await User.findOne({ username: "Test" });
+            console.log(`User test: ${userTest} and food gotten ${foodToAdd}`);
+            userTest.foods =  [...userTest.foods, foodToAdd];
+            await userTest.save();
+          
+            return userTest;
+          }
+      }
     }),
   });
 
