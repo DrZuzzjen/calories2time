@@ -51,19 +51,15 @@ const FoodEntry = new GraphQLObjectType({
       user: {
         type: UserEntry,
         args: { name: { type: GraphQLString } },
-        resolve: (parent, args) => {
-          return users.find((user) => {
-            return user.name === args.name;
-          });
+        resolve: async (parent, args) => {
+          return User.findOne({username: args.name});
         },
       },
       food: {
         type: FoodEntry,
         args: { name: { type: GraphQLString } },
         resolve: (parent, args) => {
-          return foods.find((food) => {
-            return food.name === args.name;
-          });
+          return Food.findOne({name: args.name});
         },
       },
     }),
