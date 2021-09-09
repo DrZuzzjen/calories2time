@@ -1,27 +1,26 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const mongoose = require('mongoose');
-const {graphql, GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLNonNull, GraphQLID} = require('graphql');
-const {graphqlHTTP} = require('express-graphql');
+const mongoose = require("mongoose");
+const { graphqlHTTP } = require("express-graphql");
+
 
 // Import models
-const {Food} = require('./models/food');
-const User = require('./models/user');
+const { Food } = require("./models/food");
+const User = require("./models/user");
 
-mongoose.connect(process.env.DB_CONNECTION, {useNewUrlParser: true, useUnifiedTopology: true});
+// Import schema 
+const schema = require("./schema/schema");
 
-// Testing save
-// const food = new User({
-//   username: "François",
-//   password: "test123",
-//   email: "as@asb.com"
-// }).save().then( () => console.log("User saved"));
+mongoose.connect(process.env.DB_CONNECTION, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const app = express();
 
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: "http://localhost:8081",
 };
 
 app.use(cors(corsOptions));
@@ -38,178 +37,17 @@ app.get("/", (req, res) => {
 });
 
 
-// Add GraphQL stuff
-
-// Vars in place of DB to make it easier
-const foods = [
-	{ id: 1, name: 'almonds', time: 10 },
-	{ id: 2, name: 'beef', time: -25 }
-];
-
-const users = [
-	{ id: 1, name: 'Francois' },
-	{ id: 2, name: 'Hugo' },
-];
-
-// GraphQlObjects Schema
-const FoodEntry = new GraphQLObjectType({
-  name: "Food",
-  fields: () => ({
-    name: {type: GraphQLString},
-    time: {type: GraphQLInt},
-    id: {type: GraphQLID}
-  })
-});
-
-const UserEntry = new GraphQLObjectType({
-  name: "User",
-  fields: () => ({
-    username: {type: GraphQLString},
-    password: {type: GraphQLString},
-    id: {type: GraphQLID}
-  })
-});
-
-// Build query structure
-const rootQueryType = new GraphQLObjectType({
-  name: "Query",
-  fields: () => ({
-    users: {
-      type: GraphQLList(UserEntry),
-      resolve: () => {
-        return User.find();
-    }
-  },
-    foods: {
-      type: GraphQLList(FoodEntry),
-      resolve: () => {
-        return Food.find();
-      }
-    },
-    user: {
-      type: UserEntry,
-      args: {name: {type: GraphQLString}},
-      resolve: (parent, args) => {return (users.find(user => {return user.name === args.name;}))}
-    },
-    food: {
-      type: FoodEntry,
-      args: {name: {type: GraphQLString}},
-      resolve: (parent, args) => {return (foods.find(food => {return food.name === args.name;}))}
-    }
-  })
-});
-
-// Build mutation query
-const mutationType = new GraphQLObjectType({
-  name: "Mutation",
-  fields: () => ({
-    addUser: {
-      name: "Add user",
-      type: GraphQLList(UserEntry),
-      args: {username: {type: GraphQLNonNull(GraphQLString)}, password: {type: GraphQLNonNull(GraphQLString)}, 
-            email: {type: GraphQLNonNull(GraphQLString)}},
-      resolve: async (parent, args) => {
-        // Build user object from args received
-        const userToAdd = new User({
-          username : args.username,
-          password : args.password,
-          email: args.email
-        });
-        
-        // Add to DB
-        await userToAdd.save().then( () => {console.log("User saved");});
-  
-        // Return all foods in DB
-        return (User.find());
-        }
-      },
-      removeUser: {
-        name: "Remove user",
-        type: GraphQLList(UserEntry),
-        args: {username: {type: GraphQLNonNull(GraphQLString)}},
-        resolve: async (parent, args) => {
-          // Delete user from database
-          await User.deleteOne({username: args.username});
-    
-          // Return all users in DB
-          return (User.find());
-          }
-        },
-        updateUser: {
-          name: "Update user",
-          type: GraphQLList(UserEntry),
-          args: {username: {type: GraphQLNonNull(GraphQLString)}, newUsername: {type: GraphQLNonNull(GraphQLString)}},
-          resolve: async (parent, args) => {
-            // Update user from database
-            // Problem we are going to have, different caps, convert everything to Titlecase or lowercase?
-            await User.updateOne({username: args.username}, {username: args.newUsername} );
-      
-            // Return all users in DB
-            return (User.find());
-            }
-    },
-        
-  addFood: {
-    name: "Add food",
-    type: GraphQLList(FoodEntry),
-    args: {name: {type: GraphQLNonNull(GraphQLString)}, time: {type: GraphQLNonNull(GraphQLInt)}},
-    resolve: async (parent, args) => {
-      // Build food object from args received
-      const foodToAdd = new Food({
-        name : args.name,
-        time : args.time,
-      });
-      
-      // Add to DB
-      await foodToAdd.save().then( () => {console.log("Food saved");});
-
-      // Return all foods in DB
-      return (Food.find());
-      }
-    },
-    removeFood: {
-      name: "Remove food",
-      type: GraphQLList(FoodEntry),
-      args: {name: {type: GraphQLNonNull(GraphQLString)}},
-      resolve: async (parent, args) => {
-        // Delete food from database
-        await Food.deleteOne({name: args.name});
-  
-        // Return all foods in DB
-        return (Food.find());
-        }
-      },
-      updateFood: {
-        name: "Update food",
-        type: GraphQLList(FoodEntry),
-        args: {name: {type: GraphQLNonNull(GraphQLString)}, time: {type: GraphQLNonNull(GraphQLInt)}},
-        resolve: async (parent, args) => {
-          // Update food from database
-          // Problem we are going to have, different caps, convert everything to Titlecase or lowercase?
-          await Food.updateOne({name: args.name}, {time: args.time} );
-    
-          // Return all foods in DB
-          return (Food.find());
-          }
-        }
-      })
-      });
-
-// Construct a schema, using GraphQL schema language
-var schema = new GraphQLSchema({
-  query: rootQueryType,
-  mutation: mutationType
-});
-
 //Apply graphql middleware
-app.use("/graphql", graphqlHTTP({
-  schema: schema,
-  graphiql: true
-}));
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema: schema,
+    graphiql: true,
+  })
+);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
-
