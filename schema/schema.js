@@ -186,12 +186,12 @@ const FoodEntry = new GraphQLObjectType({
           },
           resolve: async (parent, args) => {
             const foodToAdd = await Food.findOne({name: "Almonds"});
-            let userTest = await User.findOne({ username: "Test" });
-            console.log(`User test: ${userTest} and food gotten ${foodToAdd}`);
-            userTest.foods =  [...userTest.foods, foodToAdd];
-            await userTest.save();
+            const user = await User.findOne({ username: "Test" });
+            //Spread so we don't loose previous foods declared
+            user.foods =  [...user.foods, foodToAdd];
+            await user.save();
           
-            return userTest;
+            return user;
           }
       }
     }),

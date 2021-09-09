@@ -59,14 +59,3 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-async function addFoodToUser() {
-  const foodToAdd = await Food.findOne({name: "Almonds"});
-  let userTest = await User.findOne({ username: "Test" });
-  console.log(`User test: ${userTest} and food gotten ${foodToAdd}`);
-  userTest.foods =  [...userTest.foods, foodToAdd];
-  await userTest.save();
-
-  // await userTest.save();
-  console.log(userTest);
-}
-addFoodToUser();
