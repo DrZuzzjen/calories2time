@@ -29,6 +29,9 @@ const FoodEntry = new GraphQLObjectType({
       username: { type: GraphQLString },
       password: { type: GraphQLString },
       id: { type: GraphQLID },
+      foods: {
+        type: GraphQLList(FoodEntry)
+    }
     }),
   });
   
@@ -187,7 +190,7 @@ const FoodEntry = new GraphQLObjectType({
           resolve: async (parent, args) => {
             const foodToAdd = await Food.findOne({name: args.food});
             const user = await User.findOne({ username: args.username });
-            //Spread so we don't loose previous foods declared
+            //Spread so it appends instead of replacing the current foods declared
             user.foods =  [...user.foods, foodToAdd];
             await user.save();
           
