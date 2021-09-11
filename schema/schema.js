@@ -58,6 +58,17 @@ const FoodEntry = new GraphQLObjectType({
           return User.findOne({username: args.name});
         },
       },
+      userTime: {
+        type: GraphQLString,
+        args: {name: {type: GraphQLString}},
+        resolve: async (parent,args) => {
+          const userDocument = await User.findOne({username: "Test"});
+          const timeSum = userDocument.foods.reduce( (total, currentValue) => {
+            return total + currentValue.time ;
+          }, 0);
+          return "Your time is " + timeSum;    
+        }
+      },
       food: {
         type: FoodEntry,
         args: { name: { type: GraphQLString } },
@@ -180,6 +191,7 @@ const FoodEntry = new GraphQLObjectType({
           return Food.find();
         },
       },
+      //TODO add query that returns time for a user calculated on the food the user has eaten
       addFoodToUser: {
           name: "Add food to user",
           type: UserEntry,

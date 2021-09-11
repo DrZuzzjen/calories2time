@@ -8,15 +8,6 @@ const { graphqlHTTP } = require("express-graphql");
 const { Food } = require("./models/food");
 const User = require("./models/user");
 
-// Test adding food to user
-//user = new User({
-//  username: "Test",
-//  email: "ea@as.com",
-//  password: "test",
-//  foods: {name: "beef", time: 10}
-//});
-//user.save().then(console.log("User saved"));
-
 // Import schema
 const schema = require("./schema/schema");
 
