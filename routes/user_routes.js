@@ -1,8 +1,9 @@
 module.exports = (app) => {
   const router = require("express").Router();
 
-  // Import model
+  // Import models
   const User = require("../models/user");
+  const { Food } = require("../models/food");
 
   // TODO implement REST API for users
   //COMPLETED findAll user
@@ -39,14 +40,37 @@ module.exports = (app) => {
 
   //Completed update user
   router.post("/:username", async (req, res) => {
-    const username = req.params.username;
-    res.json(
+    let username = req.params.username;
+
+    // Look for user in DB
+    const user = await User.findOne({ username: username });
+    if (user === null) {
+      res.json({ message: "User not found." });
+      return;
+    }
+
+    // Look for food in DB and append to user
+    if (req.body.food != null) {
+      const foodToAdd = await Food.findOne({ name: req.body.food });
+      //Spread so it appends instead of replacing the current foods declared
+      if (foodToAdd != null) {
+          user.foods = [...user.foods, foodToAdd];
+          await user.save();
+      }
+    }
+
+    // Update username is key passed
+    if (req.body.username != null) {
       await User.findOneAndUpdate(
         { username: username },
         { username: req.body.username },
         { new: true }
-      )
-    );
+      );
+      // Kinda cheating so query below works, if username has been changed look for new name, else look for name defined in url
+      // There has to be a better way but first that came to mind and it works...
+      username = req.body.username;
+    }
+    res.json(await User.findOne({ username: username }));
   });
 
   //Completed delete user
