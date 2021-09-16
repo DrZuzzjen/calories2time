@@ -53,7 +53,10 @@ app.listen(PORT, () => {
 // Import user routes
 require("./routes/user_routes")(app);
 
-// Food REST API
+// Import food routes
+require("./routes/food_routes")(app);
+
+/* // Food REST API
 // Get all foods
 app.get("/foods", async (req, res) => {
   res.json(await Food.find());
@@ -106,3 +109,6 @@ app.delete("/foods/:food", async (req, res) => {
     res.send(`Food ${food} deleted.`);
   }
 });
+
+
+*/
