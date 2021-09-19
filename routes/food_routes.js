@@ -6,7 +6,7 @@ module.exports = (app) => {
   router.get("/", food.getAllFoods);
 
   // Add a food
-  router.post("/", food.addFood);
+  router.post("/", food.addFoodRest);
 
   // Delete all food
   router.delete("/", food.deleteFoods);
@@ -15,7 +15,7 @@ module.exports = (app) => {
   router.get("/:food", food.getFood);
 
   // Update a food
-  router.post("/:food", food.updateFood);
+  router.post("/:food", food.updateFoodRest);
 
   // Delete a food
   router.delete("/:food", food.deleteFood);

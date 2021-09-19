@@ -15,7 +15,7 @@ module.exports = (app) => {
   router.get("/:username", user.findOneUser);
 
   // Update user
-  router.post("/:username", user.updateUser);
+  router.post("/:username", user.updateUserREST);
 
   // Delete user
   router.delete("/:username", user.deleteUser);
