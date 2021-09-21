@@ -1,6 +1,5 @@
-// Import models
+// Import model
 const User = require("../models/user");
-const { Food } = require("../models/food");
 
 // Import food controller functions
 const food = require("./food");
@@ -45,6 +44,7 @@ const updateUsernameRequest = async (username, newUsername) => {
   );
 };
 
+// Add food to user
 const addFoodToUserRequest = async (username, foodName) => {
   // Look for user in DB
   const user = await findOneUserRequest(username);
@@ -104,7 +104,6 @@ exports.updateUserREST = async (req, res) => {
   const food = req.body.food;
   const newUsername = req.body.username;
   let user = {};
-  console.log(username, food, newUsername);
 
   // Look for food in DB and append to user
   if (food != null) {
@@ -139,12 +138,14 @@ exports.deleteAllUsers = async (req, res) => {
 
 /* ------------------------ GRAPHQL FUNCTIONS -------------------------*/
 
+// Add food to user
 exports.addFoodToUser = async (parent, args) => {
   const foodToAdd = args.food;
   const user = args.username;
   return await addFoodToUserRequest(user, foodToAdd);
 };
 
+// Update user GraphQL function
 exports.updateUserGraph = async (parent, args) => {
   // Update user from database
   const username = args.username;
@@ -155,6 +156,7 @@ exports.updateUserGraph = async (parent, args) => {
   return await findAllUsersRequest();
 };
 
+// Remove user from DB
 exports.removeUser = async (parent, args) => {
   // Delete user from database
   const username = args.username;
@@ -164,6 +166,7 @@ exports.removeUser = async (parent, args) => {
   return findAllUsersRequest();
 };
 
+// Add user to DB
 exports.addUser = async (parent, args) => {
   const username = args.username;
   const password = args.password;
@@ -175,20 +178,22 @@ exports.addUser = async (parent, args) => {
   return findAllUsersRequest();
 };
 
+// Get user time
 exports.userTime = async (parent, args) => {
   username = args.username;
   const userDocument = await findOneUserRequest(username);
-  console.log(userDocument);
   const timeSum = userDocument.foods.reduce((total, currentValue) => {
     return total + currentValue.time;
   }, 0);
   return "Your time is " + timeSum;
 };
 
+// Find user from DB
 exports.findUser = async (parent, args) => {
   return findOneUserRequest(args.username);
 };
 
+// Find all users
 exports.findUsers = async () => {
   return await findAllUsersRequest();
 };

@@ -23,7 +23,7 @@ const addFoodRequest = async (name, time) => {
 };
 
 const updateFoodRequest = async (name, newTime) => {
-  // Update food from database
+  // Update food from database and return new document
   // Problem we are going to have, different caps, convert everything to Titlecase or lowercase?
   return await Food.findOneAndUpdate(
     { name: name },
@@ -37,7 +37,7 @@ const deleteFoodRequest = async (food) => {
   return await Food.findOneAndDelete({ name: food });
 };
 
-const getFoodRequest = async function getFoodRequest(name) {
+const getFoodRequest = async (name) => {
   return await Food.findOne({ name: name });
 };
 
@@ -91,6 +91,8 @@ exports.deleteFood = async (req, res) => {
 };
 
 /* ------------------------ GRAPHQL FUNCTIONS -------------------------*/
+
+// Update food function for GraphQL
 exports.updateFoodGraph = async (parent, args) => {
   const name = args.name;
   const newTime = args.time;
@@ -98,6 +100,7 @@ exports.updateFoodGraph = async (parent, args) => {
   return await getFoodsRequest();
 };
 
+// Remove food 
 exports.removeFood = async (parent, args) => {
   const food = args.name;
   await deleteFoodRequest(food);
@@ -106,16 +109,17 @@ exports.removeFood = async (parent, args) => {
   return getFoodsRequest();
 };
 
+// Add food function for GraphQL
 exports.addFoodGraph = async (parent, args) => {
   return addFoodRequest(args.name, args.time);
 };
 
+//Find food 
 exports.findFood = async (parent, args) => {
   return await getFoodRequest(args.name);
 };
 
+// Get all foods
 exports.findFoods = () => {
   return Food.find();
 };
-
-//module.exports = {getFoodRequest};

@@ -9,10 +9,7 @@ const {
     GraphQLID,
   } = require("graphql");
 
-// Import models
-const { Food } = require("../models/food");
-const User = require("../models/user");
-
+// Import controllers
 const food = require("../controllers/food");
 const user = require("../controllers/user");
 
