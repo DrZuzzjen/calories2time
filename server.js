@@ -4,10 +4,6 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const { graphqlHTTP } = require("express-graphql");
 
-// Import models
-const { Food } = require("./models/food");
-const User = require("./models/user");
-
 // Import schema
 const schema = require("./schema/schema");
 
