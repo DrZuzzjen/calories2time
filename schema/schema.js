@@ -9,9 +9,9 @@ const {
     GraphQLID,
   } = require("graphql");
 
-// Import models
-const { Food } = require("../models/food");
-const User = require("../models/user");
+// Import controllers
+const food = require("../controllers/food");
+const user = require("../controllers/user");
 
 // GraphQlObjects Schema
 const FoodEntry = new GraphQLObjectType({
@@ -28,6 +28,7 @@ const FoodEntry = new GraphQLObjectType({
     fields: () => ({
       username: { type: GraphQLString },
       password: { type: GraphQLString },
+      email : {type: GraphQLString},
       id: { type: GraphQLID },
       foods: {
         type: GraphQLList(FoodEntry)
@@ -41,40 +42,26 @@ const FoodEntry = new GraphQLObjectType({
     fields: () => ({
       users: {
         type: GraphQLList(UserEntry),
-        resolve: () => {
-          return User.find();
-        },
+        resolve: user.findUsers,
       },
       foods: {
         type: GraphQLList(FoodEntry),
-        resolve: () => {
-          return Food.find();
-        },
+        resolve: food.findFoods,
       },
       user: {
         type: UserEntry,
-        args: { name: { type: GraphQLNonNull(GraphQLString) } },
-        resolve: async (parent, args) => {
-          return User.findOne({username: args.name});
-        },
+        args: { username: { type: GraphQLNonNull(GraphQLString) } },
+        resolve: user.findUser,
       },
       userTime: {
         type: GraphQLString,
-        args: {name: {type: GraphQLNonNull(GraphQLString)}},
-        resolve: async (parent,args) => {
-          const userDocument = await User.findOne({username: "Test"});
-          const timeSum = userDocument.foods.reduce( (total, currentValue) => {
-            return total + currentValue.time ;
-          }, 0);
-          return "Your time is " + timeSum;    
-        }
+        args: {username: {type: GraphQLNonNull(GraphQLString)}},
+        resolve: user.userTime,
       },
       food: {
         type: FoodEntry,
         args: { name: { type: GraphQLNonNull(GraphQLString) } },
-        resolve: (parent, args) => {
-          return Food.findOne({name: args.name});
-        },
+        resolve: food.findFood,
       },
     }),
   });
@@ -91,34 +78,13 @@ const FoodEntry = new GraphQLObjectType({
           password: { type: GraphQLNonNull(GraphQLString) },
           email: { type: GraphQLNonNull(GraphQLString) },
         },
-        resolve: async (parent, args) => {
-          // Build user object from args received
-          const userToAdd = new User({
-            username: args.username,
-            password: args.password,
-            email: args.email,
-          });
-  
-          // Add to DB
-          await userToAdd.save().then(() => {
-            console.log("User saved");
-          });
-  
-          // Return all foods in DB
-          return User.find();
-        },
+        resolve: user.addUser,
       },
       removeUser: {
         name: "Remove user",
         type: GraphQLList(UserEntry),
         args: { username: { type: GraphQLNonNull(GraphQLString) } },
-        resolve: async (parent, args) => {
-          // Delete user from database
-          await User.deleteOne({ username: args.username });
-  
-          // Return all users in DB
-          return User.find();
-        },
+        resolve: user.removeUser,
       },
       updateUser: {
         name: "Update user",
@@ -127,17 +93,7 @@ const FoodEntry = new GraphQLObjectType({
           username: { type: GraphQLNonNull(GraphQLString) },
           newUsername: { type: GraphQLNonNull(GraphQLString) },
         },
-        resolve: async (parent, args) => {
-          // Update user from database
-          // Problem we are going to have, different caps, convert everything to Titlecase or lowercase?
-          await User.updateOne(
-            { username: args.username },
-            { username: args.newUsername }
-          );
-  
-          // Return all users in DB
-          return User.find();
-        },
+        resolve: user.updateUserGraph,
       },
   
       addFood: {
@@ -147,33 +103,13 @@ const FoodEntry = new GraphQLObjectType({
           name: { type: GraphQLNonNull(GraphQLString) },
           time: { type: GraphQLNonNull(GraphQLInt) },
         },
-        resolve: async (parent, args) => {
-          // Build food object from args received
-            const foodToAdd = new Food({
-            name: args.name,
-            time: args.time,
-          });
-  
-          // Add to DB
-          await foodToAdd.save().then(() => {
-            console.log("Food saved");
-          });
-  
-          // Return all foods in DB
-          return Food.find();
-        },
+        resolve: food.addFoodGraph,
       },
       removeFood: {
         name: "Remove food",
         type: GraphQLList(FoodEntry),
         args: { name: { type: GraphQLNonNull(GraphQLString) } },
-        resolve: async (parent, args) => {
-          // Delete food from database
-          await Food.deleteOne({ name: args.name });
-  
-          // Return all foods in DB
-          return Food.find();
-        },
+        resolve: food.removeFood,
       },
       updateFood: {
         name: "Update food",
@@ -182,16 +118,8 @@ const FoodEntry = new GraphQLObjectType({
           name: { type: GraphQLNonNull(GraphQLString) },
           time: { type: GraphQLNonNull(GraphQLInt) },
         },
-        resolve: async (parent, args) => {
-          // Update food from database
-          // Problem we are going to have, different caps, convert everything to Titlecase or lowercase?
-          await Food.updateOne({ name: args.name }, { time: args.time });
-  
-          // Return all foods in DB
-          return Food.find();
-        },
+        resolve: food.updateFoodGraph,
       },
-      //TODO add query that returns time for a user calculated on the food the user has eaten
       addFoodToUser: {
           name: "Add food to user",
           type: UserEntry,
@@ -199,16 +127,8 @@ const FoodEntry = new GraphQLObjectType({
               username: {type: GraphQLNonNull(GraphQLString)},
               food: {type: GraphQLNonNull(GraphQLString)}
           },
-          resolve: async (parent, args) => {
-            const foodToAdd = await Food.findOne({name: args.food});
-            const user = await User.findOne({ username: args.username });
-            //Spread so it appends instead of replacing the current foods declared
-            user.foods =  [...user.foods, foodToAdd];
-            await user.save();
-          
-            return user;
-          }
-      }
+          resolve: user.addFoodToUser
+        }
     }),
   });
 

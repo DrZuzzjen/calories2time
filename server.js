@@ -4,10 +4,6 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const { graphqlHTTP } = require("express-graphql");
 
-// Import models
-const { Food } = require("./models/food");
-const User = require("./models/user");
-
 // Import schema
 const schema = require("./schema/schema");
 
@@ -49,3 +45,9 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+
+// Import user routes
+require("./routes/user_routes")(app);
+
+// Import food routes
+require("./routes/food_routes")(app);
