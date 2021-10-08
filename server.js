@@ -51,3 +51,8 @@ require("./routes/user_routes")(app);
 
 // Import food routes
 require("./routes/food_routes")(app);
+
+
+// Testing
+const {checkDuplicateUsernameOrEmail, checkIfRolesExist} = require("./middleware/verifySignup");
+checkIfRolesExist();
