@@ -55,4 +55,36 @@ require("./routes/food_routes")(app);
 
 // Testing
 const {checkDuplicateUsernameOrEmail, checkIfRolesExist} = require("./middleware/verifySignup");
-checkIfRolesExist();
+
+
+// Save user with roles
+/* 
+const User = require('./models/user');
+const user = new User({
+  username: "roletest",
+  password: "password",
+  email: "ab@as.com",
+  roles: ["admin", "mod"]
+}).save((err) => {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log("User saved");
+  }
+});
+*/
+
+// is Admin test
+const User = require('./models/user');
+User.findOne({ username: "roletest", roles: "adminas" })
+    .then( user => {
+      console.log(user);
+        if (user) {
+          for (role of user.roles) {
+            if (role === "admin") {
+              console.log("Is admin");
+            }
+          }
+          console.log("Not admin");
+        }
+    });
