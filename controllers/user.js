@@ -1,3 +1,6 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 // Import model
 const User = require("../models/user");
 
@@ -11,7 +14,7 @@ const food = require("./food");
 const createUserRequest = async (username, password, email) => {
   const userToAdd = new User({
     username: username,
-    password: password,
+    password: bcrypt.hashSync(password, 8),
     email: email,
   });
 
@@ -72,6 +75,8 @@ const deleteUserRequest = async (username) => {
 const deleteAllUsersRequest = async () => {
   return await User.deleteMany();
 };
+
+
 
 /* ------------------------ REST FUNCTIONS -------------------------*/
 
@@ -135,6 +140,23 @@ exports.deleteAllUsers = async (req, res) => {
   const { deletedCount } = await deleteAllUsersRequest();
   res.send(`${deletedCount} users deleted.`);
 };
+
+// Test auth
+exports.allAcess = (req,res) => {
+  res.status(200).send("Public content");
+}
+
+exports.userBoard = (req,res) => {
+  res.status(200).send("User content");
+}
+
+exports.adminBoard = (req,res) => {
+  res.status(200).send("Admin content");
+}
+
+exports.modBoard = (req,res) => {
+  res.status(200).send("Mod  content");
+}
 
 /* ------------------------ GRAPHQL FUNCTIONS -------------------------*/
 

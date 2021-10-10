@@ -46,6 +46,9 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
+// Import auth routes
+require("./routes/auth_routes")(app);
+
 // Import user routes
 require("./routes/user_routes")(app);
 
@@ -54,7 +57,6 @@ require("./routes/food_routes")(app);
 
 
 // Testing
-const {checkDuplicateUsernameOrEmail, checkIfRolesExist} = require("./middleware/verifySignup");
 
 
 // Save user with roles
@@ -75,7 +77,7 @@ const user = new User({
 */
 
 // is Admin test
-const User = require('./models/user');
+/*const User = require('./models/user');
 User.findOne({ username: "roletest", roles: "adminas" })
     .then( user => {
       console.log(user);
@@ -88,3 +90,4 @@ User.findOne({ username: "roletest", roles: "adminas" })
           console.log("Not admin");
         }
     });
+*/

@@ -2,18 +2,18 @@ const User = require("../models/user.js");
 
 checkDuplicateUsernameOrEmail = (req, res, next) => {
   // Look for username
-  User.findOne({ username: "Francois14" })
+  User.findOne({ username: req.body.username })
     .then((user) => {
       if (user) {
-        console.log("User existing", user);
+        res.status(403).send("User already exists");
         return;
       }
 
       // Look for email
-      User.findOne({ email: "ab@dv.com" })
-        .then((user) => {
-          if (user) {
-            console.log("User found", user);
+      User.findOne({ email: req.body.email })
+        .then((usera) => {
+          if (usera) {
+            res.status(403).send("Email already in use");
             return;
           }
 
