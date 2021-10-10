@@ -12,11 +12,12 @@ const food = require("./food");
 
 // Create and save new user
 const createUserRequest = async (username, password, email, roles) => {
+  console.log(roles);
   const userToAdd = new User({
     username: username,
     password: bcrypt.hashSync(password, 8),
     email: email,
-    roles: roles.split(","),
+    roles: roles.replace(/\s+/g, '').split(","),
   });
 
   // Add to DB
