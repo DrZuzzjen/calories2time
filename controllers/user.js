@@ -11,15 +11,16 @@ const food = require("./food");
   Since GraphQL and REST have an overlap on the requests, common functions are defined here */
 
 // Create and save new user
-const createUserRequest = async (username, password, email) => {
+const createUserRequest = async (username, password, email, roles) => {
   const userToAdd = new User({
     username: username,
     password: bcrypt.hashSync(password, 8),
     email: email,
+    roles: roles.split(","),
   });
 
   // Add to DB
-  return await userToAdd.save();
+  return await userToAdd.save().catch(err => err.message);
 };
 
 // Find all users
@@ -85,7 +86,8 @@ exports.createUser = async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const email = req.body.email;
-  const result = await createUserRequest(username, password, email);
+  const roles = req.body.roles;
+  const result = await createUserRequest(username, password, email, roles);
 
   res.send(result);
 };
