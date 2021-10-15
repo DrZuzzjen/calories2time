@@ -17,6 +17,12 @@ const UserSchema = new mongoose.Schema({
     },
     foods: {
       type: [FoodSchema]
+    },
+    roles: {
+      type: [String],
+      enum: ['user', 'admin', 'mod'],
+      default: 'user',
+      required: [true, "role needed"]
     }
   });
   

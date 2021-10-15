@@ -1,3 +1,6 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 // Import model
 const User = require("../models/user");
 
@@ -8,15 +11,17 @@ const food = require("./food");
   Since GraphQL and REST have an overlap on the requests, common functions are defined here */
 
 // Create and save new user
-const createUserRequest = async (username, password, email) => {
+const createUserRequest = async (username, password, email, roles) => {
+  console.log(roles);
   const userToAdd = new User({
     username: username,
-    password: password,
+    password: bcrypt.hashSync(password, 8),
     email: email,
+    roles: roles.replace(/\s+/g, '').split(","),
   });
 
   // Add to DB
-  return await userToAdd.save();
+  return await userToAdd.save().catch(err => err.message);
 };
 
 // Find all users
@@ -73,6 +78,8 @@ const deleteAllUsersRequest = async () => {
   return await User.deleteMany();
 };
 
+
+
 /* ------------------------ REST FUNCTIONS -------------------------*/
 
 // Create and save new user
@@ -80,7 +87,8 @@ exports.createUser = async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const email = req.body.email;
-  const result = await createUserRequest(username, password, email);
+  const roles = req.body.roles;
+  const result = await createUserRequest(username, password, email, roles);
 
   res.send(result);
 };
@@ -135,6 +143,23 @@ exports.deleteAllUsers = async (req, res) => {
   const { deletedCount } = await deleteAllUsersRequest();
   res.send(`${deletedCount} users deleted.`);
 };
+
+// Test auth
+exports.allAcess = (req,res) => {
+  res.status(200).send("Public content");
+}
+
+exports.userBoard = (req,res) => {
+  res.status(200).send("User content");
+}
+
+exports.adminBoard = (req,res) => {
+  res.status(200).send("Admin content");
+}
+
+exports.modBoard = (req,res) => {
+  res.status(200).send("Mod  content");
+}
 
 /* ------------------------ GRAPHQL FUNCTIONS -------------------------*/
 
